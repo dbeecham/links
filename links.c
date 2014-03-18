@@ -5,7 +5,9 @@
 #include <getopt.h>
 
 struct color { int r; int g; int b; };
-struct color colors[10] = {
+
+// Colorful
+/*struct color colors[10] = {
     {237, 0, 47},
     {255, 108, 0},
     {166, 0, 166},
@@ -16,8 +18,9 @@ struct color colors[10] = {
     {207, 247, 0},
     {203, 0, 119},
     {80, 80, 80}
-}; 
+};*/ 
 
+// Grayscale
 /*struct color colors[10] = {
     {10, 10, 10},
     {20, 20, 20},
@@ -30,6 +33,20 @@ struct color colors[10] = {
     {90, 90, 90},
     {100, 100, 100}
 };*/
+
+// Orange Spikes
+struct color colors[10] = {
+    {255, 83, 26},
+    {20, 20, 20},
+    {30, 30, 30},
+    {40, 40, 40},
+    {50, 50, 50},
+    {60, 60, 60},
+    {70, 70, 70},
+    {80, 80, 80},
+    {90, 90, 90},
+    {100, 100, 100}
+};
 
 struct config {
     double width;
@@ -47,21 +64,21 @@ struct config {
 
 // Given an integer (in range [0, inf)), calculate which position
 // in x the ball should have.
-double pos_x(int i) {
+double pos_x(int i) { // {{{
     double ball_line_width = (2 * config.ball_radius * config.num_ball_columns) + (config.spacing * (config.num_ball_columns - 1));
     double first_ball_position = ((config.width - ball_line_width) / 2) + config.ball_radius;
     return (i % (int)config.num_ball_columns) * (config.ball_radius * 2 + config.spacing) + first_ball_position;
-}
+} // }}}
 
 // Given an integer (in range [0, inf)), calculate which position
 // in y the ball should have.
-int pos_y(int i) {
+int pos_y(int i) { // {{{
     double ball_line_width = (2 * config.ball_radius * config.num_ball_rows) + (config.spacing * (config.num_ball_rows - 1));
     double first_ball_position = ((config.height - ball_line_width) / 2) + config.ball_radius;
     return floor((double)i / config.num_ball_columns) * (config.ball_radius * 2 + config.spacing) + first_ball_position;
-}
+} // }}}
 
-void draw(cairo_t *cr) {
+void draw(cairo_t *cr) { // {{{
     FILE * input = fopen("digits", "r");
     if (NULL == input) {
         fprintf(stderr, "Could not open file!");
@@ -123,6 +140,7 @@ void draw(cairo_t *cr) {
                 cairo_stroke(cr);
             }
 
+            // Above-left?
             if (i - (config.num_ball_columns + 1) > 0 
                     && i % (int)config.num_ball_columns != 0 
                     && x == arr[i - (int)(config.num_ball_columns + 1)]) {
@@ -132,15 +150,6 @@ void draw(cairo_t *cr) {
                 cairo_stroke(cr);
             }
 
-            // Above-left?
-            /*
-            if (i - 11 > 0 && i % 10 != 0 && pi[i] == pi[i - 11]) {
-                cairo_move_to(cr, pos_x(i), pos_y(i));
-                cairo_line_to(cr, pos_x(i-11), pos_y(i-11));
-                cairo_set_line_width(cr, line_width);
-                cairo_stroke(cr);
-            } */
-
             // Inclease current index
             i += 1;
         }
@@ -148,7 +157,7 @@ void draw(cairo_t *cr) {
         in = getc(input);
     }
     fclose(input);
-}
+} // }}}
 
 int main(int argc, char *argv[]) {
 

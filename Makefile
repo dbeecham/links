@@ -1,5 +1,5 @@
-pi: pi.c
-	clang $(CFLAGS) -o pi -g pi.c `pkg-config --libs --cflags gtk+-3.0` -lm
+links: links.c
+	clang $(CFLAGS) -o links -g links.c `pkg-config --libs --cflags gtk+-3.0` -lm
 
 clean:
-	rm pi
+	rm links
