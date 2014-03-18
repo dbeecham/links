@@ -7,7 +7,8 @@
 struct color { int r; int g; int b; };
 
 // Colorful
-/*struct color colors[10] = {
+/*
+struct color colors[10] = {
     {237, 0, 47},
     {255, 108, 0},
     {166, 0, 166},
@@ -18,10 +19,12 @@ struct color { int r; int g; int b; };
     {207, 247, 0},
     {203, 0, 119},
     {80, 80, 80}
-};*/ 
+}; 
+*/
 
 // Grayscale
-/*struct color colors[10] = {
+/*
+struct color colors[10] = {
     {10, 10, 10},
     {20, 20, 20},
     {30, 30, 30},
