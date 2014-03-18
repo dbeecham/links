@@ -63,7 +63,7 @@ struct config {
     double columns;
     double rows;
     int num_balls;
-} config = {647, 400, 8, 6, 8, 10, "out.png", "in.csv", 0, 0, 0};
+} config = {647, 400, 8, 6, 8, 10, "out.png", "digits", 0, 0, 0};
 
 // Given an integer (in range [0, inf)), calculate which position
 // in x the ball should have.
@@ -82,9 +82,9 @@ int pos_y(int i) { // {{{
 } // }}}
 
 void draw(cairo_t *cr) { // {{{
-    FILE * input = fopen("digits", "r");
+    FILE * input = fopen(config.input, "r");
     if (NULL == input) {
-        fprintf(stderr, "Could not open file!");
+        fprintf(stderr, "\nCould not open file!\n");
         exit(1);
     }
 
@@ -162,7 +162,7 @@ void draw(cairo_t *cr) { // {{{
     fclose(input);
 } // }}}
 
-void print_usage() {
+void print_usage() { // {{{
     printf("Usage: links [-h] [--width WIDTH] [--height HEIGHT] [--margin MARGIN] [--radius RADIUS]\n");
     printf("                  [--line-width LINE-WIDTH] [--spacing SPACING] [--input INPUT] [--output OUTPUT]\n");
     printf("                  [--columns COLUMNS] [--rows ROWS]\n\n");
@@ -178,11 +178,11 @@ void print_usage() {
     printf("      --input        Input file; a file with numbers in it. Anything that is not a number\n");
     printf("                     in this file is skipped (default is 'digits')\n");
     printf("      --output       File name to save image to (default is 'out.png')\n");
-}
+} // }}}
 
 int main(int argc, char *argv[]) {
 
-
+    // Parse options
     static struct option long_options[] = {
         {"help", no_argument, 0, 'h'},
         {"width", required_argument, 0, 'W'},
@@ -244,8 +244,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-
-
     if (0 == config.columns) {
         config.columns = floor((config.width - 2*config.margin) / ((2 * config.ball_radius) + config.spacing));
     }
@@ -253,6 +251,7 @@ int main(int argc, char *argv[]) {
         config.rows = floor((config.height - 2*config.margin) / ((2 * config.ball_radius) + config.spacing));
     }
 
+    // Calculate secondary options, print them out.
     config.num_balls = config.columns * config.rows;
     printf("CONFIG:\n=======\nwidth: %f\nheight: %f\nmargin: %f\nball radius: %f\nline width: %f\nspacing: %f\n", 
             config.width, 
@@ -263,13 +262,17 @@ int main(int argc, char *argv[]) {
             config.spacing);
     printf("columns: %f\n", config.columns);
     printf("rows: %f\n", config.rows);
-
     printf("CALCULATED:\n===========\nballs: %i\n", config.num_balls);
 
+    // Create surface
     cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, config.width, config.height);
     cairo_t *cr0 = cairo_create(surface);
+
+    // Create some art!
     draw(cr0);
-    cairo_surface_write_to_png(surface, "out.png");
+
+    // Finally, write it out!
+    cairo_surface_write_to_png(surface, config.output);
 
     return 0;
 }
