@@ -60,25 +60,25 @@ struct config {
     double margin;
     char *input;
     char *output;
-    double num_ball_columns;
-    double num_ball_rows;
+    double columns;
+    double rows;
     int num_balls;
 } config = {647, 400, 8, 6, 8, 10, "out.png", "in.csv", 0, 0, 0};
 
 // Given an integer (in range [0, inf)), calculate which position
 // in x the ball should have.
 double pos_x(int i) { // {{{
-    double ball_line_width = (2 * config.ball_radius * config.num_ball_columns) + (config.spacing * (config.num_ball_columns - 1));
+    double ball_line_width = (2 * config.ball_radius * config.columns) + (config.spacing * (config.columns - 1));
     double first_ball_position = ((config.width - ball_line_width) / 2) + config.ball_radius;
-    return (i % (int)config.num_ball_columns) * (config.ball_radius * 2 + config.spacing) + first_ball_position;
+    return (i % (int)config.columns) * (config.ball_radius * 2 + config.spacing) + first_ball_position;
 } // }}}
 
 // Given an integer (in range [0, inf)), calculate which position
 // in y the ball should have.
 int pos_y(int i) { // {{{
-    double ball_line_width = (2 * config.ball_radius * config.num_ball_rows) + (config.spacing * (config.num_ball_rows - 1));
+    double ball_line_width = (2 * config.ball_radius * config.rows) + (config.spacing * (config.rows - 1));
     double first_ball_position = ((config.height - ball_line_width) / 2) + config.ball_radius;
-    return floor((double)i / config.num_ball_columns) * (config.ball_radius * 2 + config.spacing) + first_ball_position;
+    return floor((double)i / config.columns) * (config.ball_radius * 2 + config.spacing) + first_ball_position;
 } // }}}
 
 void draw(cairo_t *cr) { // {{{
@@ -117,7 +117,7 @@ void draw(cairo_t *cr) { // {{{
             // check for links
 
             // Left?
-            if (i - 1 > 0 && i % (int)config.num_ball_columns != 0 && x == arr[i-1]) {
+            if (i - 1 > 0 && i % (int)config.columns != 0 && x == arr[i-1]) {
                 cairo_move_to(cr, pos_x(i), pos_y(i));
                 cairo_line_to(cr, pos_x(i-1), pos_y(i-1));
                 cairo_set_line_width(cr, config.line_width);
@@ -126,29 +126,29 @@ void draw(cairo_t *cr) { // {{{
 
 
             // Above?
-            if (i - config.num_ball_columns > 0 && x == arr[i - (int)config.num_ball_columns]) {
+            if (i - config.columns > 0 && x == arr[i - (int)config.columns]) {
                 cairo_move_to(cr, pos_x(i), pos_y(i));
-                cairo_line_to(cr, pos_x(i-config.num_ball_columns), pos_y(i-config.num_ball_columns));
+                cairo_line_to(cr, pos_x(i-config.columns), pos_y(i-config.columns));
                 cairo_set_line_width(cr, config.line_width);
                 cairo_stroke(cr);
             }
 
             // Above-right?
-            if (i - (config.num_ball_columns - 1) > 0 
-                    && i % (int)config.num_ball_columns != (config.num_ball_columns - 1) 
-                    && x == arr[i - (int)(config.num_ball_columns - 1)]) {
+            if (i - (config.columns - 1) > 0 
+                    && i % (int)config.columns != (config.columns - 1) 
+                    && x == arr[i - (int)(config.columns - 1)]) {
                 cairo_move_to(cr, pos_x(i), pos_y(i));
-                cairo_line_to(cr, pos_x(i-(config.num_ball_columns - 1)), pos_y(i-(config.num_ball_columns - 1)));
+                cairo_line_to(cr, pos_x(i-(config.columns - 1)), pos_y(i-(config.columns - 1)));
                 cairo_set_line_width(cr, config.line_width);
                 cairo_stroke(cr);
             }
 
             // Above-left?
-            if (i - (config.num_ball_columns + 1) > 0 
-                    && i % (int)config.num_ball_columns != 0 
-                    && x == arr[i - (int)(config.num_ball_columns + 1)]) {
+            if (i - (config.columns + 1) > 0 
+                    && i % (int)config.columns != 0 
+                    && x == arr[i - (int)(config.columns + 1)]) {
                 cairo_move_to(cr, pos_x(i), pos_y(i));
-                cairo_line_to(cr, pos_x(i-(config.num_ball_columns + 1)), pos_y(i-(config.num_ball_columns + 1)));
+                cairo_line_to(cr, pos_x(i-(config.columns + 1)), pos_y(i-(config.columns + 1)));
                 cairo_set_line_width(cr, config.line_width);
                 cairo_stroke(cr);
             }
@@ -164,7 +164,8 @@ void draw(cairo_t *cr) { // {{{
 
 void print_usage() {
     printf("Usage: links [-h] [--width WIDTH] [--height HEIGHT] [--margin MARGIN] [--radius RADIUS]\n");
-    printf("                  [--line-width LINE-WIDTH] [--spacing SPACING] [--input INPUT] [--output OUTPUT]\n\n");
+    printf("                  [--line-width LINE-WIDTH] [--spacing SPACING] [--input INPUT] [--output OUTPUT]\n");
+    printf("                  [--columns COLUMNS] [--rows ROWS]\n\n");
     printf("  -h  --help         Display this information\n");
     printf("      --width        Width of output image (default is 647)\n");
     printf("      --height       Height of the output image (default is 400)\n");
@@ -172,6 +173,8 @@ void print_usage() {
     printf("      --radius       Ball radius (default is 8)\n");
     printf("      --line-width   Width of the lines between balls (refault is 6)\n");
     printf("      --spacing      Spacing between balls (default is 8)\n");
+    printf("      --columns      Number of columns (default is as many as possible)\n");
+    printf("      --rows         Number of rows (default is as many as possible)\n");
     printf("      --input        Input file; a file with numbers in it. Anything that is not a number\n");
     printf("                     in this file is skipped (default is 'digits')\n");
     printf("      --output       File name to save image to (default is 'out.png')\n");
@@ -182,14 +185,16 @@ int main(int argc, char *argv[]) {
 
     static struct option long_options[] = {
         {"help", no_argument, 0, 'h'},
-        {"width", required_argument, 0, 1},
-        {"height", required_argument, 0, 2},
-        {"margin", required_argument, 0, 3},
-        {"radius", required_argument, 0, 4},
-        {"line-width", required_argument, 0, 5},
-        {"spacing", required_argument, 0, 6},
-        {"input", required_argument, 0, 7},
-        {"output", required_argument, 0, 8},
+        {"width", required_argument, 0, 'W'},
+        {"height", required_argument, 0, 'H'},
+        {"margin", required_argument, 0, 'm'},
+        {"radius", required_argument, 0, 'r'},
+        {"line-width", required_argument, 0, 'l'},
+        {"spacing", required_argument, 0, 's'},
+        {"input", required_argument, 0, 'i'},
+        {"output", required_argument, 0, 'o'},
+        {"columns", required_argument, 0, 'C'},
+        {"rows", required_argument, 0, 'R'},
         {0, 0, 0, 0}
     };
     int c = 0;
@@ -203,29 +208,35 @@ int main(int argc, char *argv[]) {
             case 'h':
                 print_usage();
                 exit(0);
-            case 1:
+            case 'W':
                 config.width = atol(optarg);
                 break;
-            case 2:
+            case 'H':
                 config.height = atol(optarg);
                 break;
-            case 3:
+            case 'm':
                 config.margin = atol(optarg);
                 break;
-            case 4:
+            case 'r':
                 config.ball_radius = atol(optarg);
                 break;
-            case 5:
+            case 'l':
                 config.line_width = atol(optarg);
                 break;
-            case 6:
+            case 's':
                 config.spacing = atol(optarg);
                 break;
-            case 7:
+            case 'i':
                 config.input = optarg;
                 break;
-            case 8:
+            case 'o':
                 config.output = optarg;
+                break;
+            case 'R':
+                config.rows = atoi(optarg);
+                break;
+            case 'C':
+                config.columns = atoi(optarg);
                 break;
             default:
                 fprintf(stderr, "Something is up with your arguments!");
@@ -235,9 +246,14 @@ int main(int argc, char *argv[]) {
 
 
 
-    config.num_ball_columns = floor((config.width - 2*config.margin) / ((2 * config.ball_radius) + config.spacing));
-    config.num_ball_rows = floor((config.height - 2*config.margin) / ((2 * config.ball_radius) + config.spacing));
-    config.num_balls = config.num_ball_columns * config.num_ball_rows;
+    if (0 == config.columns) {
+        config.columns = floor((config.width - 2*config.margin) / ((2 * config.ball_radius) + config.spacing));
+    }
+    if (0 == config.rows) {
+        config.rows = floor((config.height - 2*config.margin) / ((2 * config.ball_radius) + config.spacing));
+    }
+
+    config.num_balls = config.columns * config.rows;
     printf("CONFIG:\n=======\nwidth: %f\nheight: %f\nmargin: %f\nball radius: %f\nline width: %f\nspacing: %f\n", 
             config.width, 
             config.height, 
@@ -245,6 +261,8 @@ int main(int argc, char *argv[]) {
             config.ball_radius,
             config.line_width,
             config.spacing);
+    printf("columns: %f\n", config.columns);
+    printf("rows: %f\n", config.rows);
 
     printf("CALCULATED:\n===========\nballs: %i\n", config.num_balls);
 
