@@ -60,7 +60,7 @@ struct config {
     double num_ball_columns;
     double num_ball_rows;
     int num_balls;
-} config = {1440, 900, 8, 6, 8, 10, "out.png", "in.csv", 0, 0, 0};
+} config = {647, 400, 8, 6, 8, 10, "out.png", "in.csv", 0, 0, 0};
 
 // Given an integer (in range [0, inf)), calculate which position
 // in x the ball should have.
@@ -159,51 +159,70 @@ void draw(cairo_t *cr) { // {{{
     fclose(input);
 } // }}}
 
+void print_usage() {
+    printf("Usage: links [-h] [--width WIDTH] [--height HEIGHT] [--margin MARGIN] [--radius RADIUS]\n");
+    printf("                  [--line-width LINE-WIDTH] [--spacing SPACING] [--input INPUT] [--output OUTPUT]\n\n");
+    printf("  -h  --help         Display this information\n");
+    printf("      --width        Width of output image (default is 647)\n");
+    printf("      --height       Height of the output image (default is 400)\n");
+    printf("      --margin       Margins around the edges of the image (default is 10)\n");
+    printf("      --radius       Ball radius (default is 8)\n");
+    printf("      --line-width   Width of the lines between balls (refault is 6)\n");
+    printf("      --spacing      Spacing between balls (default is 8)\n");
+    printf("      --input        Input file; a file with numbers in it. Anything that is not a number\n");
+    printf("                     in this file is skipped (default is 'digits')\n");
+    printf("      --output       File name to save image to (default is 'out.png')\n");
+}
+
 int main(int argc, char *argv[]) {
 
 
     static struct option long_options[] = {
-        {"width", required_argument, 0, 'w'},
-        {"height", required_argument, 0, 'h'},
-        {"margin", required_argument, 0, 'm'},
-        {"radius", required_argument, 0, 'r'},
-        {"line-width", required_argument, 0, 'l'},
-        {"spacing", required_argument, 0, 's'},
-        {"input", required_argument, 0, 'i'},
-        {"output", required_argument, 0, 'o'},
+        {"help", no_argument, 0, 'h'},
+        {"width", required_argument, 0, 1},
+        {"height", required_argument, 0, 2},
+        {"margin", required_argument, 0, 3},
+        {"radius", required_argument, 0, 4},
+        {"line-width", required_argument, 0, 5},
+        {"spacing", required_argument, 0, 6},
+        {"input", required_argument, 0, 7},
+        {"output", required_argument, 0, 8},
         {0, 0, 0, 0}
     };
     int c = 0;
     while (1) {
         int option_index = 0;
-        c = getopt_long(argc, argv, "w:h:m:r:l:s:", long_options, &option_index);
+        c = getopt_long(argc, argv, "h", long_options, &option_index);
 
         if (-1 == c) break;
 
         switch (c) {
-            case 'w':
+            case 'h':
+                print_usage();
+                exit(0);
+            case 1:
                 config.width = atol(optarg);
                 break;
-            case 'h':
+            case 2:
                 config.height = atol(optarg);
                 break;
-            case 'm':
+            case 3:
                 config.margin = atol(optarg);
                 break;
-            case 'r':
+            case 4:
                 config.ball_radius = atol(optarg);
                 break;
-            case 'l':
+            case 5:
                 config.line_width = atol(optarg);
                 break;
-            case 's':
+            case 6:
                 config.spacing = atol(optarg);
                 break;
-            case 'o':
-                config.output = optarg;
-                break;
-            case 'i':
+            case 7:
                 config.input = optarg;
+                break;
+            case 8:
+                config.output = optarg;
                 break;
             default:
                 fprintf(stderr, "Something is up with your arguments!");
